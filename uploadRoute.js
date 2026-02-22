@@ -4,6 +4,8 @@ const multer = require('multer');
 const ImageKit = require('imagekit');
 const Image = require('./imageModel');
 const dotenv = require('dotenv');
+const path = require('path');
+const fs = require('fs');
 
 dotenv.config();
 
@@ -14,8 +16,15 @@ const imagekit = new ImageKit({
     urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
 });
 
-// Multer configuration for memory storage
-const storage = multer.memoryStorage();
+// Multer configuration for disk storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
 const upload = multer({ storage: storage });
 
 // @route   POST /upload
@@ -28,7 +37,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 
         // Upload to ImageKit
         const result = await imagekit.upload({
-            file: req.file.buffer,
+            file: fs.readFileSync(req.file.path),
             fileName: req.file.originalname,
             folder: '/wedding-invitation'
         });
@@ -37,7 +46,8 @@ router.post('/', upload.single('image'), async (req, res) => {
         const newImage = new Image({
             url: result.url,
             fileId: result.fileId,
-            name: result.name
+            name: result.name,
+            localUrl: `/images/${req.file.filename}`
         });
 
         await newImage.save();
@@ -49,6 +59,18 @@ router.post('/', upload.single('image'), async (req, res) => {
     } catch (err) {
         console.error('Upload error:', err.message);
         res.status(500).json({ message: 'Server error during upload' });
+    }
+});
+
+// @route   GET /api/upload
+// @desc    Get all uploaded images
+router.get('/', async (req, res) => {
+    try {
+        const images = await Image.find().sort({ uploadedAt: -1 });
+        res.status(200).json(images);
+    } catch (err) {
+        console.error('Fetch error:', err.message);
+        res.status(500).json({ message: 'Server error while fetching images' });
     }
 });
 

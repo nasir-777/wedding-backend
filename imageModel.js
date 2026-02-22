@@ -16,6 +16,9 @@ const ImageSchema = new mongoose.Schema({
     uploadedAt: {
         type: Date,
         default: Date.now
+    },
+    localUrl: {
+        type: String
     }
 });
 
