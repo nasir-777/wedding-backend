@@ -19,7 +19,11 @@ const imagekit = new ImageKit({
 // Multer configuration for disk storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'images/');
+        const uploadDir = 'wedding photos/';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -47,7 +51,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             url: result.url,
             fileId: result.fileId,
             name: result.name,
-            localUrl: `/images/${req.file.filename}`
+            localUrl: `/wedding photos/${req.file.filename}`
         });
 
         await newImage.save();

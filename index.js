@@ -14,7 +14,7 @@ connectDB();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/images', express.static('images'));
+app.use('/wedding photos', express.static('wedding photos'));
 
 // Routes
 app.use('/api/upload', uploadRoute);
