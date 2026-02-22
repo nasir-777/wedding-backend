@@ -66,6 +66,26 @@ router.post('/', upload.single('image'), async (req, res) => {
     }
 });
 
+// @route   PATCH /api/upload/:id
+// @desc    Update image visibility
+router.patch('/:id', async (req, res) => {
+    try {
+        const { isVisible } = req.body;
+        const image = await Image.findByIdAndUpdate(
+            req.params.id,
+            { isVisible },
+            { new: true }
+        );
+        if (!image) {
+            return res.status(404).json({ message: 'Image not found' });
+        }
+        res.status(200).json(image);
+    } catch (err) {
+        console.error('Update error:', err.message);
+        res.status(500).json({ message: 'Server error while updating image' });
+    }
+});
+
 // @route   GET /api/upload
 // @desc    Get all uploaded images
 router.get('/', async (req, res) => {

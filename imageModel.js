@@ -19,6 +19,10 @@ const ImageSchema = new mongoose.Schema({
     },
     localUrl: {
         type: String
+    },
+    isVisible: {
+        type: Boolean,
+        default: true
     }
 });
 
