@@ -22,7 +22,7 @@ const ImageSchema = new mongoose.Schema({
     },
     isVisible: {
         type: Boolean,
-        default: true
+        default: false
     }
 });
 

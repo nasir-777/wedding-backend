@@ -87,10 +87,11 @@ router.patch('/:id', async (req, res) => {
 });
 
 // @route   GET /api/upload
-// @desc    Get all uploaded images
+// @desc    Get uploaded images (optionally filter by visibility)
 router.get('/', async (req, res) => {
     try {
-        const images = await Image.find().sort({ uploadedAt: -1 });
+        const filter = req.query.visible === 'true' ? { isVisible: true } : {};
+        const images = await Image.find(filter).sort({ uploadedAt: -1 });
         res.status(200).json(images);
     } catch (err) {
         console.error('Fetch error:', err.message);
